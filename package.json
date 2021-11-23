@@ -1,0 +1,31 @@
+{
+	"name": "uploadfotobandymas",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"dev": "nodemon src/index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^5.0.1",
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"joi": "^17.4.2",
+		"jsonwebtoken": "^8.5.1",
+		"multer": "^1.4.3",
+		"mysql2": "^2.3.3",
+		"nodemon": "^2.0.15",
+		"path": "^0.12.7"
+	},
+	"devDependencies": {
+		"eslint": "^8.3.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-plugin-import": "^2.25.3"
+	}
+}
