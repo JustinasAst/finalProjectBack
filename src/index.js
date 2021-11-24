@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const auth = require('./routes/v1/auth');
 const company = require('./routes/v1/company');
+const comment = require('./routes/v1/comment');
 
 const { port } = require('./config');
 
@@ -13,6 +14,7 @@ app.use(cors());
 
 app.use('/v1/auth', auth);
 app.use('/v1/company', company);
+app.use('/v1/comments', comment);
 
 app.get('/', (req, res) => {
 	res.send({ msg: 'Hello from the other side' });
