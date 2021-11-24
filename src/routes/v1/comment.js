@@ -57,4 +57,15 @@ router.get('/:id', isLoggedIn, async (req, res) => {
 	}
 });
 
+app.delete('/:id', isLoggedIn, async (req, res) => {
+	try {
+		const con = await mysql.createConnection(dbConfig);
+		const [data] = await con.execute(`DELETE FROM coments WHERE id = ${mysql.escape(req.params.id)}`);
+		await con.end();
+		return res.send(data);
+	} catch (err) {
+		return res.status(500).send({ err });
+	}
+});
+
 module.exports = router;

@@ -30,7 +30,7 @@ const uploadImages = multer({
 	storage: diskStorage,
 });
 
-router.post('/company', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
+router.post('/', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
 	let userInput = req.body;
 	try {
 		const con = await mysql.createConnection(dbConfig);
@@ -48,7 +48,7 @@ router.post('/company', isLoggedIn, uploadImages.single('foto'), async (req, res
 	}
 });
 
-router.get('/company/:filter', async (req, res) => {
+router.get('/:filter', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(`SELECT * FROM company WHERE filter = ${req.params.filter}`);
@@ -60,7 +60,7 @@ router.get('/company/:filter', async (req, res) => {
 	}
 });
 
-router.get('/company', async (req, res) => {
+router.get('/', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
@@ -71,6 +71,17 @@ router.get('/company', async (req, res) => {
 	} catch (err) {
 		console.log(err);
 		res.status(500).send(err);
+	}
+});
+
+router.delete('/company/:id', async (req, res) => {
+	try {
+		const con = await mysql.createConnection(dbConfig);
+		const [data] = await con.execute(`DELETE FROM company WHERE id = ${mysql.escape(req.params.id)}`);
+		await con.end();
+		return res.send(data);
+	} catch (err) {
+		return res.status(500).send({ err });
 	}
 });
 
