@@ -9,15 +9,16 @@ const { isLoggedIn } = require('../../middleware');
 
 // post comment from users acount
 
-router.post('/', isLoggedIn, async (req, res) => {
-	const { company_id, comment, rating } = req.body;
+router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
+	const { companyId } = req.params;
+	const { comment, rating } = req.body;
 
 	if (!comment || !rating) {
 		return res.status(400).send({ err: 'Incorrect data passed' });
 	}
 	try {
 		const query = `INSERT INTO comments ( company_id, comment, rating, users_id ) 
-      VALUES ( ${mysql.escape(company_id)}, ${mysql.escape(comment)},
+      VALUES ( ${mysql.escape(companyId)}, ${mysql.escape(comment)},
        ${mysql.escape(rating)}, ${mysql.escape(req.user.id)} )`;
 
 		const con = await mysql.createConnection(dbConfig);
@@ -32,32 +33,32 @@ router.post('/', isLoggedIn, async (req, res) => {
 
 // paduoda comentara ir kas ji parase
 
-router.get('/:id', isLoggedIn, async (req, res) => {
-	const { id } = req.params;
+router.get(
+	'/:companyId/comments',
+	/*isLoggedIn,*/ async (req, res) => {
+		const { companyId } = req.params;
 
-	try {
-		const query = `
+		try {
+			const query = `
         SELECT com.id, c.comment, c.com_timestamp, c.rating, com.name, u.name
         FROM company com
         LEFT JOIN comments c
         ON (com.id = c.company_id)
         LEFT JOIN users u
         ON c.users_id = u.id
-        WHERE com.id = ${mysql.escape(id)}`;
+        WHERE com.id = ${mysql.escape(companyId)}`;
 
-		console.log(id);
-
-		const con = await mysql.createConnection(dbConfig);
-		const [data] = await con.execute(query);
-		await con.end();
-
-		return res.send(data);
-	} catch (err) {
-		return res.status(500).send({ err });
+			const con = await mysql.createConnection(dbConfig);
+			const [data] = await con.execute(query);
+			await con.end();
+			return res.send(data);
+		} catch (err) {
+			return res.status(500).send({ err });
+		}
 	}
-});
+);
 
-app.delete('/:id', isLoggedIn, async (req, res) => {
+router.delete('/:companyId/comments/:id', isLoggedIn, async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(`DELETE FROM coments WHERE id = ${mysql.escape(req.params.id)}`);

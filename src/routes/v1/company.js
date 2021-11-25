@@ -48,7 +48,7 @@ router.post('/', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
 	}
 });
 
-router.get('/:filter', async (req, res) => {
+router.get('/filter/:filter', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(`SELECT * FROM company WHERE filter = ${req.params.filter}`);
@@ -64,8 +64,9 @@ router.get('/', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
-			`SELECT company.name, company.description, company.place, company.foto  FROM company`
+			`SELECT *, (select avg(rating) as rating from comments where company_id=c.id) as rating  FROM company c`
 		);
+
 		await con.end();
 		res.send(data);
 	} catch (err) {
@@ -80,6 +81,17 @@ router.delete('/company/:id', async (req, res) => {
 		const [data] = await con.execute(`DELETE FROM company WHERE id = ${mysql.escape(req.params.id)}`);
 		await con.end();
 		return res.send(data);
+	} catch (err) {
+		return res.status(500).send({ err });
+	}
+});
+
+router.get('/:id', async (req, res) => {
+	try {
+		const con = await mysql.createConnection(dbConfig);
+		const [data] = await con.execute(`SELECT * FROM company WHERE id = ${Number(req.params.id)} limit 1`);
+		await con.end();
+		return res.send(data[0]);
 	} catch (err) {
 		return res.status(500).send({ err });
 	}
