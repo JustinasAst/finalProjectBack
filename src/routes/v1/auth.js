@@ -81,7 +81,7 @@ router.post('/login', async (req, res) => {
 			jwtSecret
 		);
 
-		return passwordCorect ? res.send({ token }) : res.status(400).send({ err: 'Incorrect password' });
+		return passwordCorect ? res.send({ token, id: data[0].id }) : res.status(400).send({ err: 'Incorrect password' });
 	} catch (err) {
 		return res.status(500).send({ err });
 	}

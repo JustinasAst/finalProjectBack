@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/v1/auth', auth);
+
 company.use(comment);
 app.use('/v1/company', company);
 

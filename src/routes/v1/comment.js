@@ -59,9 +59,12 @@ router.get(
 );
 
 router.delete('/:companyId/comments/:id', isLoggedIn, async (req, res) => {
+	console.log(req.user);
 	try {
 		const con = await mysql.createConnection(dbConfig);
-		const [data] = await con.execute(`DELETE FROM coments WHERE id = ${mysql.escape(req.params.id)}`);
+		const [data] = await con.execute(
+			`DELETE FROM comments WHERE id = ${mysql.escape(req.params.id)} AND user_id= ${req.user.id}`
+		);
 		await con.end();
 		return res.send(data);
 	} catch (err) {

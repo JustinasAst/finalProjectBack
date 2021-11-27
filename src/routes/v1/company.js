@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use(cors());
 
-const { dbConfig, jwtSecret } = require('../../config');
+const { dbConfig } = require('../../config');
 const { isLoggedIn } = require('../../middleware');
 
 const router = express.Router();
@@ -30,6 +30,8 @@ const uploadImages = multer({
 	storage: diskStorage,
 });
 
+// Post company data
+
 router.post('/', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
 	let userInput = req.body;
 	try {
@@ -46,6 +48,11 @@ router.post('/', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
 		console.log(err);
 		res.status(500).send(err);
 	}
+});
+
+router.get('/uploads/:fileName', (req, res) => {
+	const fileLocation = path.resolve('./uploads/' + req.params.fileName);
+	res.sendFile(fileLocation);
 });
 
 router.get('/filter/:filter', async (req, res) => {
