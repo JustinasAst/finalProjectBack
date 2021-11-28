@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
 	const registerSchema = Joi.object({
-		// name: Joi.string().required(),
+		name: Joi.string().required(),
 		email: Joi.string().email().trim().required(),
 		password: Joi.string().min(6).max(30).required(),
 	});
@@ -81,7 +81,9 @@ router.post('/login', async (req, res) => {
 			jwtSecret
 		);
 
-		return passwordCorect ? res.send({ token, id: data[0].id }) : res.status(400).send({ err: 'Incorrect password' });
+		return passwordCorect
+			? res.send({ token, id: data[0].id, name: data[0].id })
+			: res.status(400).send({ err: 'Incorrect password' });
 	} catch (err) {
 		return res.status(500).send({ err });
 	}

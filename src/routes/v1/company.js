@@ -32,16 +32,16 @@ const uploadImages = multer({
 
 // Post company data
 
-router.post('/', isLoggedIn, uploadImages.single('foto'), async (req, res) => {
+router.post('/', /* isLoggedIn, */ uploadImages.single('foto'), async (req, res) => {
 	let userInput = req.body;
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
-			`INSERT INTO company(name, description, filter, place, foto) VALUES (  ${mysql.escape(userInput.name)}, 
-            ${mysql.escape(userInput.description)}, ${mysql.escape(userInput.filter)}, 
-			${mysql.escape(userInput.place)},'${req.file.filename}')`
+			`INSERT INTO company(name, model, description, production_years, foto) VALUES (  ${mysql.escape(userInput.name)}, 
+          ${mysql.escape(userInput.model)},   ${mysql.escape(userInput.description)},
+			${mysql.escape(userInput.production_years)},'${req.file.filename}')`
 		);
-		console.log(req.file.filename);
+
 		await con.end();
 		res.send(data);
 	} catch (err) {
@@ -55,24 +55,14 @@ router.get('/uploads/:fileName', (req, res) => {
 	res.sendFile(fileLocation);
 });
 
-router.get('/filter/:filter', async (req, res) => {
-	try {
-		const con = await mysql.createConnection(dbConfig);
-		const [data] = await con.execute(`SELECT * FROM company WHERE filter = ${req.params.filter}`);
-		await con.end();
-		res.send(data);
-	} catch (err) {
-		console.log(err);
-		res.status(500).send(err);
-	}
-});
-
-router.get('/', async (req, res) => {
+router.get('/filter/:name', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
-			`SELECT *, (select avg(rating) as rating from comments where company_id=c.id) as rating  FROM company c`
+			`SELECT * , (select avg(rating) as rating from comments where company_id=c.id) as rating  FROM company c WHERE c.name = 
+			${mysql.escape(req.params.name)}`
 		);
+		// `SELECT * , (select avg(rating) as rating , avg(economy)as aconomy, avg(pricedrom)as aconomy from comments where company_id=c.id) `
 
 		await con.end();
 		res.send(data);
@@ -82,7 +72,7 @@ router.get('/', async (req, res) => {
 	}
 });
 
-router.delete('/company/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(`DELETE FROM company WHERE id = ${mysql.escape(req.params.id)}`);

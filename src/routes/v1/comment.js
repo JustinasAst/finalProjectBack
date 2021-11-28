@@ -11,15 +11,18 @@ const { isLoggedIn } = require('../../middleware');
 
 router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
 	const { companyId } = req.params;
-	const { comment, rating } = req.body;
 
-	if (!comment || !rating) {
+	const { comment, rating, expenses, economy, price_drop } = req.body;
+
+	if (!comment || !rating || !expenses || !economy || !price_drop) {
 		return res.status(400).send({ err: 'Incorrect data passed' });
 	}
 	try {
-		const query = `INSERT INTO comments ( company_id, comment, rating, users_id ) 
+		const query = `INSERT INTO comments ( company_id, comment, rating, expenses, economy, price_drop, users_id ) 
       VALUES ( ${mysql.escape(companyId)}, ${mysql.escape(comment)},
-       ${mysql.escape(rating)}, ${mysql.escape(req.user.id)} )`;
+       ${mysql.escape(rating)},  ${mysql.escape(expenses)},  ${mysql.escape(economy)}, 
+	   ${mysql.escape(price_drop)}, ${mysql.escape(req.user.user)} )`;
+		console.log(req.user);
 
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(query);
@@ -35,18 +38,19 @@ router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
 
 router.get(
 	'/:companyId/comments',
-	/*isLoggedIn,*/ async (req, res) => {
+	/* isLoggedIn, */ async (req, res) => {
 		const { companyId } = req.params;
 
 		try {
 			const query = `
-        SELECT com.id, c.comment, c.com_timestamp, c.rating, com.name, u.name
+        SELECT c.id, c.comment, c.com_timestamp, c.rating, c.expenses, c.economy, c.price_drop, com.name, u.name  AS user, c.users_id
         FROM company com
         LEFT JOIN comments c
         ON (com.id = c.company_id)
         LEFT JOIN users u
         ON c.users_id = u.id
         WHERE com.id = ${mysql.escape(companyId)}`;
+			console.log(req.user);
 
 			const con = await mysql.createConnection(dbConfig);
 			const [data] = await con.execute(query);
@@ -63,7 +67,7 @@ router.delete('/:companyId/comments/:id', isLoggedIn, async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
-			`DELETE FROM comments WHERE id = ${mysql.escape(req.params.id)} AND user_id= ${req.user.id}`
+			`DELETE FROM comments WHERE id = ${mysql.escape(req.params.id)} AND users_id= ${req.user.user}`
 		);
 		await con.end();
 		return res.send(data);
