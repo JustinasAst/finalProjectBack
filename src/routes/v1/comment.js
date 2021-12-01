@@ -7,7 +7,7 @@ const router = express.Router();
 const { dbConfig } = require('../../config');
 const { isLoggedIn } = require('../../middleware');
 
-// post comment from users acount
+// Post comment from users acount
 
 router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
 	const { companyId } = req.params;
@@ -34,15 +34,13 @@ router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
 	}
 });
 
-// paduoda comentara ir kas ji parase
+// Get comments, join with user and comapany table
 
-router.get(
-	'/:companyId/comments',
-	/* isLoggedIn, */ async (req, res) => {
-		const { companyId } = req.params;
+router.get('/:companyId/comments', async (req, res) => {
+	const { companyId } = req.params;
 
-		try {
-			const query = `
+	try {
+		const query = `
         SELECT c.id, c.comment, c.com_timestamp, c.rating, c.expenses, c.economy, c.price_drop, com.name, u.name  AS user, c.users_id
         FROM company com
         LEFT JOIN comments c
@@ -50,17 +48,18 @@ router.get(
         LEFT JOIN users u
         ON c.users_id = u.id
         WHERE com.id = ${mysql.escape(companyId)}`;
-			console.log(req.user);
+		console.log(req.user);
 
-			const con = await mysql.createConnection(dbConfig);
-			const [data] = await con.execute(query);
-			await con.end();
-			return res.send(data);
-		} catch (err) {
-			return res.status(500).send({ err });
-		}
+		const con = await mysql.createConnection(dbConfig);
+		const [data] = await con.execute(query);
+		await con.end();
+		return res.send(data);
+	} catch (err) {
+		return res.status(500).send({ err });
 	}
-);
+});
+
+// Delete comment
 
 router.delete('/:companyId/comments/:id', isLoggedIn, async (req, res) => {
 	console.log(req.user);

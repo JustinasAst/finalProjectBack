@@ -17,6 +17,8 @@ const { isLoggedIn } = require('../../middleware');
 
 const router = express.Router();
 
+// Send photo to uploads folder
+
 const generateFileName = (req, file, cb) => {
 	cb(null, new Date().getTime() + file.originalname);
 };
@@ -30,9 +32,16 @@ const uploadImages = multer({
 	storage: diskStorage,
 });
 
-// Post company data
+// Get photo from uploads folder
 
-router.post('/', /* isLoggedIn, */ uploadImages.single('foto'), async (req, res) => {
+router.get('/uploads/:fileName', (req, res) => {
+	const fileLocation = path.resolve('./uploads/' + req.params.fileName);
+	res.sendFile(fileLocation);
+});
+
+// Post company data with pictures
+
+router.post('/', uploadImages.single('foto'), async (req, res) => {
 	let userInput = req.body;
 	try {
 		const con = await mysql.createConnection(dbConfig);
@@ -50,12 +59,14 @@ router.post('/', /* isLoggedIn, */ uploadImages.single('foto'), async (req, res)
 	}
 });
 
-router.get('/uploads/:fileName', (req, res) => {
+/* router.get('/uploads/:fileName', (req, res) => {
 	const fileLocation = path.resolve('./uploads/' + req.params.fileName);
 	res.sendFile(fileLocation);
-});
+}); */
 
-router.get('/filter/:name', async (req, res) => {
+// Filtering company table, by name
+
+router.get('/filter/:name?', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
@@ -72,6 +83,8 @@ router.get('/filter/:name', async (req, res) => {
 	}
 });
 
+// Delete company row
+
 router.delete('/:id', async (req, res) => {
 	try {
 		const con = await mysql.createConnection(dbConfig);
@@ -82,6 +95,26 @@ router.delete('/:id', async (req, res) => {
 		return res.status(500).send({ err });
 	}
 });
+
+// Update production_years
+
+router.put('/:id', async (req, res) => {
+	let userInput = req.body;
+	try {
+		const con = await mysql.createConnection(dbConfig);
+		const [data] = await con.execute(
+			`UPDATE company SET production_years = ${mysql.escape(userInput.production_years)}
+			 WHERE id = ${mysql.escape(req.params.id)}`
+		);
+
+		await con.end();
+		res.send(data);
+	} catch (err) {
+		console.log(err);
+		res.status(500).send(err);
+	}
+});
+
 
 router.get('/:id', async (req, res) => {
 	try {
