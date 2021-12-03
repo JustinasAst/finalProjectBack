@@ -22,13 +22,12 @@ router.post('/:companyId/comments', isLoggedIn, async (req, res) => {
       VALUES ( ${mysql.escape(companyId)}, ${mysql.escape(comment)},
        ${mysql.escape(rating)},  ${mysql.escape(expenses)},  ${mysql.escape(economy)}, 
 	   ${mysql.escape(price_drop)}, ${mysql.escape(req.user.user)} )`;
-		console.log(req.user);
 
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(query);
 		await con.end();
 
-		return res.send(data);
+		return res.send({ msg: 'added', data });
 	} catch (err) {
 		return res.status(500).send({ err: 'Sever Error' });
 	}

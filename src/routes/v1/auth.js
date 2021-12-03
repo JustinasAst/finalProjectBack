@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
 
 		return res.send(data);
 	} catch (err) {
-		return res.status(500).send({ err: 'Server error' });
+		return res.status(500).send({ err: 'server error' });
 	}
 });
 
