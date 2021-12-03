@@ -42,13 +42,17 @@ router.get('/uploads/:fileName', (req, res) => {
 // Post company data with pictures
 
 router.post('/', uploadImages.single('foto'), async (req, res) => {
-	let userInput = req.body;
+	const { name, model, description, production_years } = req.body;
+
+	if (!name || !model || !description || !production_years) {
+		return res.status(400).send({ err: 'Incorrect data passed' });
+	}
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(
-			`INSERT INTO company(name, model, description, production_years, foto) VALUES (  ${mysql.escape(userInput.name)}, 
-          ${mysql.escape(userInput.model)},   ${mysql.escape(userInput.description)},
-			${mysql.escape(userInput.production_years)},'${req.file.filename}')`
+			`INSERT INTO company(name, model, description, production_years, foto) VALUES (  ${mysql.escape(name)}, 
+          ${mysql.escape(model)},   ${mysql.escape(description)},
+			${mysql.escape(production_years)},'${req.file.filename}')`
 		);
 
 		await con.end();
@@ -59,11 +63,6 @@ router.post('/', uploadImages.single('foto'), async (req, res) => {
 	}
 });
 
-/* router.get('/uploads/:fileName', (req, res) => {
-	const fileLocation = path.resolve('./uploads/' + req.params.fileName);
-	res.sendFile(fileLocation);
-}); */
-
 // Filtering company table, by name
 
 router.get('/filter/:name?', async (req, res) => {
@@ -73,7 +72,6 @@ router.get('/filter/:name?', async (req, res) => {
 			`SELECT * , (select avg(rating) as rating from comments where company_id=c.id) as rating  FROM company c WHERE c.name = 
 			${mysql.escape(req.params.name)}`
 		);
-		// `SELECT * , (select avg(rating) as rating , avg(economy)as aconomy, avg(pricedrom)as aconomy from comments where company_id=c.id) `
 
 		await con.end();
 		res.send(data);
@@ -114,7 +112,6 @@ router.put('/:id', async (req, res) => {
 		res.status(500).send(err);
 	}
 });
-
 
 router.get('/:id', async (req, res) => {
 	try {
