@@ -47,7 +47,6 @@ router.get('/:companyId/comments', async (req, res) => {
         LEFT JOIN users u
         ON c.users_id = u.id
         WHERE com.id = ${mysql.escape(companyId)}`;
-		console.log(req.user);
 
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(query);
@@ -58,10 +57,9 @@ router.get('/:companyId/comments', async (req, res) => {
 	}
 });
 
-// Delete comment
+// Delete comments
 
 router.delete('/:companyId/comments/:id', isLoggedIn, async (req, res) => {
-	console.log(req.user);
 	try {
 		const con = await mysql.createConnection(dbConfig);
 		const [data] = await con.execute(

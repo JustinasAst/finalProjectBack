@@ -80,7 +80,6 @@ router.post('/login', async (req, res) => {
 			},
 			jwtSecret
 		);
-		console.log(token);
 		return passwordCorect
 			? res.send({ token, id: data[0].id, name: data[0].id, user: data[0].id })
 			: res.status(400).send({ err: 'Incorrect password' });
